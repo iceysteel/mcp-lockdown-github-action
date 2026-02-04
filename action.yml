@@ -1,0 +1,79 @@
+name: 'MCP Lockdown Security Scan'
+description: 'Scan MCP servers for security vulnerabilities using the SAFE-MCP framework'
+author: 'MCP Lockdown'
+
+branding:
+  icon: 'shield'
+  color: 'purple'
+
+inputs:
+  api-key:
+    description: 'MCP Lockdown API key'
+    required: true
+
+  api-url:
+    description: 'MCP Lockdown API URL'
+    required: false
+    default: 'https://app.mcplockdown.com'
+
+  repo-url:
+    description: 'MCP server repo URL (auto-detected from GitHub context if omitted)'
+    required: false
+
+  techniques:
+    description: 'Techniques to run: "owasp-top-10" or comma-separated IDs (e.g., "SAFE-T1001,SAFE-T1002")'
+    required: false
+    default: 'owasp-top-10'
+
+  timeout-minutes:
+    description: 'Maximum time to wait for all scans to complete'
+    required: false
+    default: '30'
+
+  poll-interval-seconds:
+    description: 'How often to check scan status'
+    required: false
+    default: '30'
+
+  fail-on-findings:
+    description: 'Fail the action if any technique finds a vulnerability'
+    required: false
+    default: 'true'
+
+  comment-on-pr:
+    description: 'Post a PR comment for each completed technique'
+    required: false
+    default: 'true'
+
+  create-checks:
+    description: 'Create a GitHub Check Run for each technique'
+    required: false
+    default: 'true'
+
+  sarif-output:
+    description: 'Path to write aggregated SARIF file after all techniques complete'
+    required: false
+    default: ''
+
+outputs:
+  queue-id:
+    description: 'The queue ID (or test ID if single technique)'
+
+  total-techniques:
+    description: 'Number of techniques that were run'
+
+  vulnerable-count:
+    description: 'Number of techniques that found vulnerabilities'
+
+  not-vulnerable-count:
+    description: 'Number of techniques that found no vulnerabilities'
+
+  failed-count:
+    description: 'Number of techniques that failed to complete'
+
+  sarif-file:
+    description: 'Path to the generated SARIF file (if sarif-output was set)'
+
+runs:
+  using: 'node20'
+  main: 'dist/index.js'
