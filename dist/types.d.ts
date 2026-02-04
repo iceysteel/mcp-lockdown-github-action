@@ -18,15 +18,15 @@ export interface QueueInfo {
 }
 /** Response from GET /api/queues/{id} */
 export interface QueueDetail extends QueueInfo {
-    tests: QueueTestEntry[];
-    completed: number;
-    total: number;
+    test_ids: Record<string, string>;
+    completed_techniques: string[];
+    skipped_techniques: string[];
+    failed_techniques: string[];
     current_test_id: string | null;
-}
-export interface QueueTestEntry {
-    test_id: string;
-    technique_id: string;
-    status: string;
+    current_technique_id: string | null;
+    current_technique_index: number;
+    total_techniques: number;
+    error: string | null;
 }
 /** Response from GET /api/tests/{id} — the detail view with result */
 export interface TestDetail extends TestInfo {

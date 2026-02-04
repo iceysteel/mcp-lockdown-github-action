@@ -38,24 +38,25 @@ export async function pollScan(
         break;
       }
     } else {
-      // Queue — poll the queue and check each technique's test
+      // Queue — poll the queue and derive per-technique status
       const queue = await client.getQueueDetail(scan.id);
 
-      for (const entry of queue.tests) {
-        if (
-          TERMINAL_STATUSES.includes(entry.status) &&
-          !completedTechniques.has(entry.technique_id)
-        ) {
-          completedTechniques.add(entry.technique_id);
+      for (const techniqueId of queue.technique_ids) {
+        const testId = queue.test_ids[techniqueId];
+        if (!testId) continue; // technique hasn't started yet
+
+        const isCompleted = queue.completed_techniques.includes(techniqueId);
+        const isFailed = queue.failed_techniques.includes(techniqueId);
+        const isSkipped = queue.skipped_techniques.includes(techniqueId);
+
+        if ((isCompleted || isFailed || isSkipped) && !completedTechniques.has(techniqueId)) {
+          completedTechniques.add(techniqueId);
 
           // Fetch full test detail to get the report
-          const detail = await client.getTestDetail(entry.test_id);
-          const report = extractReport(
-            detail.result,
-            entry.technique_id
-          );
+          const detail = await client.getTestDetail(testId);
+          const report = extractReport(detail.result, techniqueId);
           allReports.push(report);
-          await onTechniqueComplete(entry.test_id, report);
+          await onTechniqueComplete(testId, report);
         }
       }
 
